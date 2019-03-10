@@ -41,7 +41,13 @@ func main() {
     w.Header().Set("cache-control", "public, max-age=5")
     w.Header().Set("etag", etag)
 
-    if ifNoneMatch == etag {
+    if ifNoneMatch != "" && ifModified != "" {
+      if ifNoneMatch == etag && ifModified == lastModified {
+        w.WriteHeader(304)
+      } else {
+        fmt.Fprintf(w, string(data))
+      }
+    } else if ifNoneMatch == etag {
       w.WriteHeader(304)
     } else if ifModified == lastModified {
       lastModified = time.Now().Format(http.TimeFormat)
